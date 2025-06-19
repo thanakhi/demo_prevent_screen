@@ -89,34 +89,35 @@ class ScreenCaptureService {
   }
 
   // Handle navigation start - called when navigation begins
+  // SECURITY PRINCIPLE: Protected content MUST NEVER be exposed during transitions
   void onNavigationStart(String fromRoute, String toRoute) {
     _isTransitioning = true;
     _previousRoute = fromRoute;
     _currentRoute = toRoute;
 
-    // Immediately apply protection based on destination route
-    // This prevents black screen during transition to unprotected routes
+    // Apply security-first transition protection
     _applyTransitionProtection(fromRoute, toRoute);
   }
 
-  // Apply protection logic during transitions
+  // Apply protection logic during transitions - SECURITY FIRST!
+  // BLACK SCREEN IS ACCEPTABLE - CONTENT LEAK IS NOT!
   void _applyTransitionProtection(String fromRoute, String toRoute) {
     bool fromNeedsProtection = isProtectionEnabledForRoute(fromRoute);
     bool toNeedsProtection = isProtectionEnabledForRoute(toRoute);
 
-    // If going TO a protected route, enable protection immediately
-    if (toNeedsProtection && !_isProtected) {
-      enableProtection();
-    }
-    // If going FROM protected TO unprotected, disable protection early
-    // to prevent black screen during transition
-    else if (fromNeedsProtection && !toNeedsProtection && _isProtected) {
-      // Delay slightly to allow transition to start, then disable
-      Future.delayed(const Duration(milliseconds: 50), () {
-        if (_isTransitioning) {
-          disableProtection();
-        }
-      });
+    // CRITICAL: If EITHER route needs protection, keep protection ON
+    // This ensures ZERO security gaps during transitions
+    // Trade-off: User sees black screen during animation, but content is NEVER exposed
+    if (fromNeedsProtection || toNeedsProtection) {
+      if (!_isProtected) {
+        enableProtection();
+      }
+      // Protection stays ON during entire transition if any route needs it
+    } else {
+      // Only disable if BOTH routes are unprotected
+      if (_isProtected) {
+        disableProtection();
+      }
     }
   }
 
@@ -152,11 +153,17 @@ class ScreenCaptureService {
   // Check if currently transitioning
   bool get isTransitioning => _isTransitioning;
 
-  // Ensure protection during critical operations
+  // Ensure protection during critical operations - SECURITY FIRST!
   Future<void> ensureProtectionDuringTransition() async {
     if (_isTransitioning && _previousRoute != null && _currentRoute != null) {
-      // Use the same logic as navigation start
-      _applyTransitionProtection(_previousRoute!, _currentRoute!);
+      // During transition, protection must be ON if ANY route needs it
+      bool anyRouteNeedsProtection = 
+          isProtectionEnabledForRoute(_previousRoute!) ||
+          isProtectionEnabledForRoute(_currentRoute!);
+      
+      if (anyRouteNeedsProtection && !_isProtected) {
+        await enableProtection();
+      }
     }
   }
 }

@@ -2,12 +2,14 @@
 class TransitionTest {
   static void testImprovedTransitionLogic() {
     print('🧪 TESTING IMPROVED TRANSITION LOGIC\n');
-    
+
     print('=== SCENARIO: Page1(protected) → Page2(unprotected) ===');
-    print('Old Logic: Protection stays ON during entire transition → Black screen');
-    print('New Logic: Protection disabled early in transition → No black screen');
+    print(
+        'Old Logic: Protection stays ON during entire transition → Black screen');
+    print(
+        'New Logic: Protection disabled early in transition → No black screen');
     print('');
-    
+
     print('Expected behavior:');
     print('1. User on Page1 with protection ON');
     print('2. User navigates to Page2 (protection OFF)');
@@ -16,7 +18,7 @@ class TransitionTest {
     print('5. Animation completes normally');
     print('6. Final state: Page2 with protection OFF');
     print('');
-    
+
     print('=== SCENARIO: Page2(unprotected) → Page1(protected) ===');
     print('Expected behavior:');
     print('1. User on Page2 with protection OFF');
@@ -26,11 +28,12 @@ class TransitionTest {
     print('5. Animation completes normally');
     print('6. Final state: Page1 with protection ON');
     print('');
-    
+
     print('✅ Key Improvement: Asymmetric transition handling');
     print('   - TO protected route: Enable protection immediately');
     print('   - TO unprotected route: Disable protection early (50ms delay)');
-    print('   - This prevents unnecessary black screens while maintaining security');
+    print(
+        '   - This prevents unnecessary black screens while maintaining security');
   }
 }
 
