@@ -147,7 +147,8 @@ class _Page3State extends State<Page3> {
                   ElevatedButton.icon(
                     onPressed: () {
                       setState(() {
-                        _screenCaptureService.toggleProtectionForRoute('/page3');
+                        _screenCaptureService
+                            .toggleProtectionForRoute('/page3');
                         _screenCaptureService.applyProtectionForRoute('/page3');
                       });
                     },

@@ -10,12 +10,16 @@ class ScreenProtectionRouteObserver extends RouteObserver<PageRoute<dynamic>> {
 
     if (route is PageRoute) {
       String? routeName = route.settings.name;
+      String? previousRouteName = previousRoute?.settings.name;
+      
       if (routeName != null) {
         print('Route pushed: $routeName');
         _screenCaptureService.onRoutePushed(routeName);
 
-        // Ensure protection during push animation
-        _screenCaptureService.ensureProtectionDuringTransition();
+        // Start navigation transition with improved logic
+        if (previousRouteName != null) {
+          _screenCaptureService.onNavigationStart(previousRouteName, routeName);
+        }
 
         // Apply protection after a short delay to ensure route is fully loaded
         Future.delayed(const Duration(milliseconds: 100), () {
@@ -38,8 +42,8 @@ class ScreenProtectionRouteObserver extends RouteObserver<PageRoute<dynamic>> {
             'Route popped: $poppedRouteName, returning to: $previousRouteName');
         _screenCaptureService.onRoutePopped(poppedRouteName);
 
-        // Ensure protection during pop animation
-        _screenCaptureService.ensureProtectionDuringTransition();
+        // Start navigation transition with improved logic
+        _screenCaptureService.onNavigationStart(poppedRouteName, previousRouteName);
 
         // Apply protection for the route we're returning to
         Future.delayed(const Duration(milliseconds: 100), () {

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../services/screen_capture_service.dart';
 import '../services/navigation_protection_manager.dart';
 import '../widgets/screen_protector_wrapper.dart';
-import 'page3.dart';
 
 class Page2 extends StatefulWidget {
   const Page2({super.key});
@@ -13,24 +12,6 @@ class Page2 extends StatefulWidget {
 
 class _Page2State extends State<Page2> {
   final ScreenCaptureService _screenCaptureService = ScreenCaptureService();
-
-  // Method to pop to Page 1 then push to Page 3
-  void _popToPage1ThenPushToPage3() {
-    // Pop to Page 1 first
-    NavigationProtectionManager.popWithProtection(context);
-    
-    // Use a short delay to ensure the pop animation completes
-    // then push to Page 3
-    Future.delayed(const Duration(milliseconds: 350), () {
-      if (mounted) {
-        NavigationProtectionManager.pushWithProtection(
-          context,
-          '/page3',
-          const Page3(),
-        );
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -185,29 +166,12 @@ class _Page2State extends State<Page2> {
                 ),
               ),
               const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      // Use protected navigation for back navigation
-                      NavigationProtectionManager.popWithProtection(context);
-                    },
-                    child: const Text('Back to Page 1'),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      // Pop to Page 1 then push to Page 3
-                      _popToPage1ThenPushToPage3();
-                    },
-                    icon: const Icon(Icons.navigate_next),
-                    label: const Text('Via Page 1 → Page 3'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.indigo.shade100,
-                      foregroundColor: Colors.indigo.shade700,
-                    ),
-                  ),
-                ],
+              ElevatedButton(
+                onPressed: () {
+                  // Use protected navigation for back navigation
+                  NavigationProtectionManager.popWithProtection(context);
+                },
+                child: const Text('Back to Page 1'),
               ),
             ],
           ),

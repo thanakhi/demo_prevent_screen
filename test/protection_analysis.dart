@@ -36,7 +36,7 @@ class ProtectionTestScenario {
   final Map<String, bool> routeSettings;
   final bool expectedFinalProtection;
   final List<bool> transitionProtectionStates;
-  
+
   ProtectionTestScenario({
     required this.scenario,
     required this.routeStack,
@@ -48,10 +48,10 @@ class ProtectionTestScenario {
 
 // Test scenarios based on the provided use cases
 final List<ProtectionTestScenario> testScenarios = [
-  
   // SCENARIO 1: All false routes
   ProtectionTestScenario(
-    scenario: "main(false) > pageA(false) > pageB(false) > pageC(false) > pageD(false)",
+    scenario:
+        "main(false) > pageA(false) > pageB(false) > pageC(false) > pageD(false)",
     routeStack: ['/', '/pageA', '/pageB', '/pageC', '/pageD'],
     routeSettings: {
       '/': false,
@@ -66,7 +66,8 @@ final List<ProtectionTestScenario> testScenarios = [
 
   // SCENARIO 2: pageA true, others false
   ProtectionTestScenario(
-    scenario: "main(false) > pageA(true) > pageB(false) > pageC(false) > pageD(false)",
+    scenario:
+        "main(false) > pageA(true) > pageB(false) > pageC(false) > pageD(false)",
     routeStack: ['/', '/pageA', '/pageB', '/pageC', '/pageD'],
     routeSettings: {
       '/': false,
@@ -76,12 +77,19 @@ final List<ProtectionTestScenario> testScenarios = [
       '/pageD': false,
     },
     expectedFinalProtection: false, // Final destination is pageD(false)
-    transitionProtectionStates: [false, true, false, false, false], // Protection during pageA transition
+    transitionProtectionStates: [
+      false,
+      true,
+      false,
+      false,
+      false
+    ], // Protection during pageA transition
   ),
 
   // SCENARIO 3: pageB true, others false
   ProtectionTestScenario(
-    scenario: "main(false) > pageA(false) > pageB(true) > pageC(false) > pageD(false)",
+    scenario:
+        "main(false) > pageA(false) > pageB(true) > pageC(false) > pageD(false)",
     routeStack: ['/', '/pageA', '/pageB', '/pageC', '/pageD'],
     routeSettings: {
       '/': false,
@@ -91,12 +99,19 @@ final List<ProtectionTestScenario> testScenarios = [
       '/pageD': false,
     },
     expectedFinalProtection: false, // Final destination is pageD(false)
-    transitionProtectionStates: [false, false, true, false, false], // Protection during pageB transition
+    transitionProtectionStates: [
+      false,
+      false,
+      true,
+      false,
+      false
+    ], // Protection during pageB transition
   ),
 
   // SCENARIO 4: pageD true, others false
   ProtectionTestScenario(
-    scenario: "main(false) > pageA(false) > pageB(false) > pageC(false) > pageD(true)",
+    scenario:
+        "main(false) > pageA(false) > pageB(false) > pageC(false) > pageD(true)",
     routeStack: ['/', '/pageA', '/pageB', '/pageC', '/pageD'],
     routeSettings: {
       '/': false,
@@ -106,12 +121,19 @@ final List<ProtectionTestScenario> testScenarios = [
       '/pageD': true,
     },
     expectedFinalProtection: true, // Final destination is pageD(true)
-    transitionProtectionStates: [false, false, false, false, true], // Protection during pageD transition
+    transitionProtectionStates: [
+      false,
+      false,
+      false,
+      false,
+      true
+    ], // Protection during pageD transition
   ),
 
   // SCENARIO 5: Multiple true routes
   ProtectionTestScenario(
-    scenario: "main(false) > pageA(true) > pageB(true) > pageC(false) > pageD(false)",
+    scenario:
+        "main(false) > pageA(true) > pageB(true) > pageC(false) > pageD(false)",
     routeStack: ['/', '/pageA', '/pageB', '/pageC', '/pageD'],
     routeSettings: {
       '/': false,
@@ -121,9 +143,14 @@ final List<ProtectionTestScenario> testScenarios = [
       '/pageD': false,
     },
     expectedFinalProtection: false, // Final destination is pageD(false)
-    transitionProtectionStates: [false, true, true, false, false], // Protection during true routes
+    transitionProtectionStates: [
+      false,
+      true,
+      true,
+      false,
+      false
+    ], // Protection during true routes
   ),
-
 ];
 
 /*
@@ -182,15 +209,15 @@ RECOMMENDED IMPROVEMENTS:
 // Test function to validate current implementation
 void analyzeImplementation() {
   print("=== SCREEN CAPTURE PROTECTION ANALYSIS ===");
-  
+
   for (var scenario in testScenarios) {
     print("\nSCENARIO: ${scenario.scenario}");
     print("Expected Final Protection: ${scenario.expectedFinalProtection}");
     print("Route Settings: ${scenario.routeSettings}");
-    
+
     // Simulate the scenario
     var service = ScreenCaptureService();
-    
+
     // Set up route protection settings
     for (var entry in scenario.routeSettings.entries) {
       if (entry.value) {
@@ -199,15 +226,17 @@ void analyzeImplementation() {
         service.disableProtectionForRoute(entry.key);
       }
     }
-    
+
     // Test final route protection
     String finalRoute = scenario.routeStack.last;
-    bool actualFinalProtection = service.isProtectionEnabledForRoute(finalRoute);
-    
+    bool actualFinalProtection =
+        service.isProtectionEnabledForRoute(finalRoute);
+
     print("Actual Final Protection Setting: $actualFinalProtection");
-    print("✅ Final Protection: ${actualFinalProtection == scenario.expectedFinalProtection ? 'PASS' : 'FAIL'}");
+    print(
+        "✅ Final Protection: ${actualFinalProtection == scenario.expectedFinalProtection ? 'PASS' : 'FAIL'}");
   }
-  
+
   print("\n=== IDENTIFIED ISSUES ===");
   print("1. Route stack might have duplicate entries");
   print("2. Complex pop scenarios need better handling");

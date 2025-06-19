@@ -21,38 +21,83 @@ class NavigationTestRunner {
     print('📋 TESTING BASIC PUSH SCENARIOS\n');
 
     // Scenario 1: All false
-    await service.testNavigationScenario(
-      ['/', '/pageA', '/pageB', '/pageC', '/pageD'],
-      {'/': false, '/pageA': false, '/pageB': false, '/pageC': false, '/pageD': false}
-    );
+    await service.testNavigationScenario([
+      '/',
+      '/pageA',
+      '/pageB',
+      '/pageC',
+      '/pageD'
+    ], {
+      '/': false,
+      '/pageA': false,
+      '/pageB': false,
+      '/pageC': false,
+      '/pageD': false
+    });
     await validateFinalState(false, 'All routes false');
 
     // Scenario 2: Only pageA true
-    await service.testNavigationScenario(
-      ['/', '/pageA', '/pageB', '/pageC', '/pageD'],
-      {'/': false, '/pageA': true, '/pageB': false, '/pageC': false, '/pageD': false}
-    );
+    await service.testNavigationScenario([
+      '/',
+      '/pageA',
+      '/pageB',
+      '/pageC',
+      '/pageD'
+    ], {
+      '/': false,
+      '/pageA': true,
+      '/pageB': false,
+      '/pageC': false,
+      '/pageD': false
+    });
     await validateFinalState(false, 'Only pageA true, ending at pageD false');
 
     // Scenario 3: Only pageB true
-    await service.testNavigationScenario(
-      ['/', '/pageA', '/pageB', '/pageC', '/pageD'],
-      {'/': false, '/pageA': false, '/pageB': true, '/pageC': false, '/pageD': false}
-    );
+    await service.testNavigationScenario([
+      '/',
+      '/pageA',
+      '/pageB',
+      '/pageC',
+      '/pageD'
+    ], {
+      '/': false,
+      '/pageA': false,
+      '/pageB': true,
+      '/pageC': false,
+      '/pageD': false
+    });
     await validateFinalState(false, 'Only pageB true, ending at pageD false');
 
     // Scenario 4: Only pageC true
-    await service.testNavigationScenario(
-      ['/', '/pageA', '/pageB', '/pageC', '/pageD'],
-      {'/': false, '/pageA': false, '/pageB': false, '/pageC': true, '/pageD': false}
-    );
+    await service.testNavigationScenario([
+      '/',
+      '/pageA',
+      '/pageB',
+      '/pageC',
+      '/pageD'
+    ], {
+      '/': false,
+      '/pageA': false,
+      '/pageB': false,
+      '/pageC': true,
+      '/pageD': false
+    });
     await validateFinalState(false, 'Only pageC true, ending at pageD false');
 
     // Scenario 5: Only pageD true
-    await service.testNavigationScenario(
-      ['/', '/pageA', '/pageB', '/pageC', '/pageD'],
-      {'/': false, '/pageA': false, '/pageB': false, '/pageC': false, '/pageD': true}
-    );
+    await service.testNavigationScenario([
+      '/',
+      '/pageA',
+      '/pageB',
+      '/pageC',
+      '/pageD'
+    ], {
+      '/': false,
+      '/pageA': false,
+      '/pageB': false,
+      '/pageC': false,
+      '/pageD': true
+    });
     await validateFinalState(true, 'Only pageD true, ending at pageD true');
   }
 
@@ -61,39 +106,89 @@ class NavigationTestRunner {
     print('📋 TESTING COMPLEX PUSH SCENARIOS\n');
 
     // Scenario: pageA and pageB true
-    await service.testNavigationScenario(
-      ['/', '/pageA', '/pageB', '/pageC', '/pageD'],
-      {'/': false, '/pageA': true, '/pageB': true, '/pageC': false, '/pageD': false}
-    );
-    await validateFinalState(false, 'pageA and pageB true, ending at pageD false');
+    await service.testNavigationScenario([
+      '/',
+      '/pageA',
+      '/pageB',
+      '/pageC',
+      '/pageD'
+    ], {
+      '/': false,
+      '/pageA': true,
+      '/pageB': true,
+      '/pageC': false,
+      '/pageD': false
+    });
+    await validateFinalState(
+        false, 'pageA and pageB true, ending at pageD false');
 
     // Scenario: pageA and pageC true
-    await service.testNavigationScenario(
-      ['/', '/pageA', '/pageB', '/pageC', '/pageD'],
-      {'/': false, '/pageA': true, '/pageB': false, '/pageC': true, '/pageD': false}
-    );
-    await validateFinalState(false, 'pageA and pageC true, ending at pageD false');
+    await service.testNavigationScenario([
+      '/',
+      '/pageA',
+      '/pageB',
+      '/pageC',
+      '/pageD'
+    ], {
+      '/': false,
+      '/pageA': true,
+      '/pageB': false,
+      '/pageC': true,
+      '/pageD': false
+    });
+    await validateFinalState(
+        false, 'pageA and pageC true, ending at pageD false');
 
     // Scenario: pageA and pageD true
-    await service.testNavigationScenario(
-      ['/', '/pageA', '/pageB', '/pageC', '/pageD'],
-      {'/': false, '/pageA': true, '/pageB': false, '/pageC': false, '/pageD': true}
-    );
-    await validateFinalState(true, 'pageA and pageD true, ending at pageD true');
+    await service.testNavigationScenario([
+      '/',
+      '/pageA',
+      '/pageB',
+      '/pageC',
+      '/pageD'
+    ], {
+      '/': false,
+      '/pageA': true,
+      '/pageB': false,
+      '/pageC': false,
+      '/pageD': true
+    });
+    await validateFinalState(
+        true, 'pageA and pageD true, ending at pageD true');
 
     // Scenario: pageB and pageC true
-    await service.testNavigationScenario(
-      ['/', '/pageA', '/pageB', '/pageC', '/pageD'],
-      {'/': false, '/pageA': false, '/pageB': true, '/pageC': true, '/pageD': false}
-    );
-    await validateFinalState(false, 'pageB and pageC true, ending at pageD false');
+    await service.testNavigationScenario([
+      '/',
+      '/pageA',
+      '/pageB',
+      '/pageC',
+      '/pageD'
+    ], {
+      '/': false,
+      '/pageA': false,
+      '/pageB': true,
+      '/pageC': true,
+      '/pageD': false
+    });
+    await validateFinalState(
+        false, 'pageB and pageC true, ending at pageD false');
 
     // Scenario: pageC and pageD true
-    await service.testNavigationScenario(
-      ['/', '/pageA', '/pageB', '/pageC', '/pageD'],
-      {'/': false, '/pageA': false, '/pageB': false, '/pageC': true, '/pageD': true}
-    );
-    await validateFinalState(true, 'pageC and pageD true, ending at pageD true');
+    await service.testNavigationScenario([
+      '/',
+      '/pageA',
+      '/pageB',
+      '/pageC',
+      '/pageD'
+    ], {
+      '/': false,
+      '/pageA': false,
+      '/pageB': false,
+      '/pageC': true,
+      '/pageD': true
+    });
+    await validateFinalState(
+        true, 'pageC and pageD true, ending at pageD true');
   }
 
   // Test pop scenarios
@@ -108,11 +203,11 @@ class NavigationTestRunner {
     // Push to pageA
     await service.onRoutePushed('/', '/pageA');
     await service.onNavigationComplete('/pageA');
-    
+
     // Push to pageB
     await service.onRoutePushed('/pageA', '/pageB');
     await service.onNavigationComplete('/pageB');
-    
+
     // Pop back to pageA
     await service.onRoutePopped('/pageB');
     await service.onNavigationComplete('/pageA');
@@ -126,10 +221,10 @@ class NavigationTestRunner {
 
     await service.onRoutePushed('/', '/pageA');
     await service.onNavigationComplete('/pageA');
-    
+
     await service.onRoutePushed('/pageA', '/pageB');
     await service.onNavigationComplete('/pageB');
-    
+
     await service.onRoutePopped('/pageB');
     await service.onNavigationComplete('/pageA');
 
@@ -179,20 +274,23 @@ class NavigationTestRunner {
     await service.onNavigationComplete('/pageD');
     print('At pageD: protection = ${service.isProtected}');
 
-    await validateFinalState(true, 'Complex mixed navigation ending at pageD(true)');
+    await validateFinalState(
+        true, 'Complex mixed navigation ending at pageD(true)');
   }
 
-  Future<void> validateFinalState(bool expectedProtection, String scenario) async {
+  Future<void> validateFinalState(
+      bool expectedProtection, String scenario) async {
     bool actualProtection = service.isProtected;
-    String result = actualProtection == expectedProtection ? '✅ PASS' : '❌ FAIL';
-    
+    String result =
+        actualProtection == expectedProtection ? '✅ PASS' : '❌ FAIL';
+
     print('$result $scenario');
     print('  Expected: $expectedProtection, Actual: $actualProtection');
-    
+
     if (actualProtection != expectedProtection) {
       print('  🔍 State Analysis: ${service.getStateAnalysis()}');
     }
-    
+
     print('');
   }
 
@@ -204,22 +302,24 @@ class NavigationTestRunner {
     service.resetState();
     service.enableProtectionForRoute('/pageA');
     service.enableProtectionForRoute('/pageB');
-    
+
     // Rapid push operations
     await service.onRoutePushed('/', '/pageA');
     await service.onRoutePushed('/pageA', '/pageB');
     await service.onNavigationComplete('/pageB');
-    
+
     await validateFinalState(true, 'Rapid navigation to protected route');
 
     // Test stuck transition recovery
     service.resetState();
     service._isTransitioning = true;
-    service._lastTransitionTime = DateTime.now().subtract(const Duration(seconds: 10));
-    
+    service._lastTransitionTime =
+        DateTime.now().subtract(const Duration(seconds: 10));
+
     await service.ensureProtectionDuringTransition();
-    
-    print('${service.isTransitioning ? "❌ FAIL" : "✅ PASS"} Stuck transition recovery');
+
+    print(
+        '${service.isTransitioning ? "❌ FAIL" : "✅ PASS"} Stuck transition recovery');
     print('');
   }
 }
@@ -229,9 +329,10 @@ Future<void> main() async {
   final testRunner = NavigationTestRunner();
   await testRunner.runAllTests();
   await testRunner.testEdgeCases();
-  
+
   print('\n📊 FINAL ANALYSIS:');
-  print('The enhanced implementation handles all specified use cases correctly.');
+  print(
+      'The enhanced implementation handles all specified use cases correctly.');
   print('Key improvements made:');
   print('• ✅ Race condition prevention with operation queue');
   print('• ✅ Proper route stack management without duplicates');

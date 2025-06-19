@@ -55,20 +55,16 @@ class NavigationProtectionManager {
   Future<void> _prepareForNavigation(String routeName) async {
     _activeTransitions.add(routeName);
 
-    // If the target route or any currently active route needs protection, enable it
-    bool needsProtection =
-        _screenCaptureService.isProtectionEnabledForRoute(routeName);
-
-    // Check if any active transitions require protection
-    for (String activeRoute in _activeTransitions) {
-      if (_screenCaptureService.isProtectionEnabledForRoute(activeRoute)) {
-        needsProtection = true;
-        break;
+    // Get current route from screen capture service
+    String? currentRoute = _screenCaptureService.getCurrentRoute();
+    if (currentRoute != null) {
+      // Use the improved transition logic from ScreenCaptureService
+      _screenCaptureService.onNavigationStart(currentRoute, routeName);
+    } else {
+      // Fallback: enable protection if target route needs it
+      if (_screenCaptureService.isProtectionEnabledForRoute(routeName)) {
+        await _screenCaptureService.enableProtection();
       }
-    }
-
-    if (needsProtection) {
-      await _screenCaptureService.enableProtection();
     }
   }
 

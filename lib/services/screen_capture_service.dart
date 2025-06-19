@@ -94,10 +94,29 @@ class ScreenCaptureService {
     _previousRoute = fromRoute;
     _currentRoute = toRoute;
 
-    // If either route requires protection, enable it during transition
-    if (isProtectionEnabledForRoute(fromRoute) ||
-        isProtectionEnabledForRoute(toRoute)) {
+    // Immediately apply protection based on destination route
+    // This prevents black screen during transition to unprotected routes
+    _applyTransitionProtection(fromRoute, toRoute);
+  }
+
+  // Apply protection logic during transitions
+  void _applyTransitionProtection(String fromRoute, String toRoute) {
+    bool fromNeedsProtection = isProtectionEnabledForRoute(fromRoute);
+    bool toNeedsProtection = isProtectionEnabledForRoute(toRoute);
+
+    // If going TO a protected route, enable protection immediately
+    if (toNeedsProtection && !_isProtected) {
       enableProtection();
+    }
+    // If going FROM protected TO unprotected, disable protection early
+    // to prevent black screen during transition
+    else if (fromNeedsProtection && !toNeedsProtection && _isProtected) {
+      // Delay slightly to allow transition to start, then disable
+      Future.delayed(const Duration(milliseconds: 50), () {
+        if (_isTransitioning) {
+          disableProtection();
+        }
+      });
     }
   }
 
@@ -135,21 +154,9 @@ class ScreenCaptureService {
 
   // Ensure protection during critical operations
   Future<void> ensureProtectionDuringTransition() async {
-    if (_isTransitioning) {
-      // During transition, apply protection if either route needs it
-      bool needsProtection = false;
-      if (_currentRoute != null &&
-          isProtectionEnabledForRoute(_currentRoute!)) {
-        needsProtection = true;
-      }
-      if (_previousRoute != null &&
-          isProtectionEnabledForRoute(_previousRoute!)) {
-        needsProtection = true;
-      }
-
-      if (needsProtection && !_isProtected) {
-        await enableProtection();
-      }
+    if (_isTransitioning && _previousRoute != null && _currentRoute != null) {
+      // Use the same logic as navigation start
+      _applyTransitionProtection(_previousRoute!, _currentRoute!);
     }
   }
 }

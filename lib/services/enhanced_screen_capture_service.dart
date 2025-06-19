@@ -111,7 +111,8 @@ class EnhancedScreenCaptureService {
   void toggleProtectionForRoute(String routeName) {
     _routeProtectionSettings[routeName] =
         !(_routeProtectionSettings[routeName] ?? false);
-    _log('Protection TOGGLED for route: $routeName -> ${_routeProtectionSettings[routeName]}');
+    _log(
+        'Protection TOGGLED for route: $routeName -> ${_routeProtectionSettings[routeName]}');
   }
 
   Map<String, bool> getAllRouteSettings() {
@@ -144,14 +145,15 @@ class EnhancedScreenCaptureService {
     _previousRoute = fromRoute;
     _currentRoute = toRoute;
     _lastTransitionTime = DateTime.now();
-    
+
     _log('Navigation START: $fromRoute -> $toRoute');
 
     // Enhanced protection logic during transitions
     bool fromRouteNeedsProtection = isProtectionEnabledForRoute(fromRoute);
     bool toRouteNeedsProtection = isProtectionEnabledForRoute(toRoute);
-    
-    _log('From route protection: $fromRouteNeedsProtection, To route protection: $toRouteNeedsProtection');
+
+    _log(
+        'From route protection: $fromRouteNeedsProtection, To route protection: $toRouteNeedsProtection');
 
     // Enable protection if either route needs it
     if (fromRouteNeedsProtection || toRouteNeedsProtection) {
@@ -163,7 +165,7 @@ class EnhancedScreenCaptureService {
     _isTransitioning = false;
     _currentRoute = routeName;
     _addToRouteStack(routeName);
-    
+
     _log('Navigation COMPLETE: $routeName');
 
     // Apply final protection state based on destination route
@@ -180,7 +182,7 @@ class EnhancedScreenCaptureService {
   Future<void> onRoutePopped(String poppedRoute) async {
     _removeFromRouteStack(poppedRoute);
     String returningToRoute = _routeStack.isNotEmpty ? _routeStack.last : '/';
-    
+
     _log('Route POPPED: $poppedRoute, returning to: $returningToRoute');
     await onNavigationStart(poppedRoute, returningToRoute);
   }
@@ -189,7 +191,7 @@ class EnhancedScreenCaptureService {
   Future<void> applyProtectionForRoute(String routeName) async {
     bool needsProtection = isProtectionEnabledForRoute(routeName);
     _log('Applying protection for $routeName: $needsProtection');
-    
+
     if (needsProtection) {
       await enableProtection();
     } else {
@@ -203,7 +205,8 @@ class EnhancedScreenCaptureService {
 
     // Check for stuck transitions (timeout after 5 seconds)
     if (_lastTransitionTime != null) {
-      final timeSinceTransition = DateTime.now().difference(_lastTransitionTime!);
+      final timeSinceTransition =
+          DateTime.now().difference(_lastTransitionTime!);
       if (timeSinceTransition.inSeconds > 5) {
         _log('WARNING: Transition timeout detected, resetting state');
         _isTransitioning = false;
@@ -213,11 +216,12 @@ class EnhancedScreenCaptureService {
 
     // Enhanced protection logic during transitions
     bool needsProtection = false;
-    
+
     if (_currentRoute != null && isProtectionEnabledForRoute(_currentRoute!)) {
       needsProtection = true;
     }
-    if (_previousRoute != null && isProtectionEnabledForRoute(_previousRoute!)) {
+    if (_previousRoute != null &&
+        isProtectionEnabledForRoute(_previousRoute!)) {
       needsProtection = true;
     }
 
@@ -244,7 +248,8 @@ class EnhancedScreenCaptureService {
   }
 
   // Test specific use cases
-  Future<void> testNavigationScenario(List<String> navigationSequence, Map<String, bool> routeSettings) async {
+  Future<void> testNavigationScenario(
+      List<String> navigationSequence, Map<String, bool> routeSettings) async {
     _log('=== TESTING NAVIGATION SCENARIO ===');
     _log('Sequence: ${navigationSequence.join(' -> ')}');
     _log('Settings: $routeSettings');
