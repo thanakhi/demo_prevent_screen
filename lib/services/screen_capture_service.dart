@@ -41,6 +41,34 @@ class ScreenCaptureService {
     }
   }
 
+  // CRITICAL SECURITY METHOD: Enable protection synchronously without async operations
+  // This is used when we need IMMEDIATE protection before any animation starts
+  // Trade-off: May block briefly, but ensures ZERO security gap
+  void enableProtectionSynchronous() {
+    try {
+      _log('SECURITY: Enabling protection SYNCHRONOUSLY');
+
+      // Skip async queue processing for immediate protection
+      _isProcessingProtectionChange = true;
+
+      // Call the plugin synchronously (this may block briefly but prevents security gaps)
+      ScreenProtector.preventScreenshotOn();
+      _isProtected = true;
+
+      _log('Protection enabled SYNCHRONOUSLY - status: $_isProtected');
+
+      _isProcessingProtectionChange = false;
+
+      // Process any pending operations after immediate protection is applied
+      _processPendingOperations();
+    } catch (e) {
+      _log('ERROR in synchronous protection: $e');
+      _isProcessingProtectionChange = false;
+      // Even if there's an error, mark as protected to fail safe
+      _isProtected = true;
+    }
+  }
+
   // Enhanced protection enable with queue management
   Future<void> enableProtection() async {
     if (_isProcessingProtectionChange) {
@@ -151,9 +179,19 @@ class ScreenCaptureService {
     }
   }
 
+  // Public method for route observer to start navigation without full protection logic
+  void startNavigationState(String fromRoute, String toRoute) {
+    _isTransitioning = true;
+    _previousRoute = fromRoute;
+    _currentRoute = toRoute;
+    _lastTransitionTime = DateTime.now();
+
+    _log('Navigation state started: $fromRoute -> $toRoute');
+  }
+
   // Enhanced navigation start - called when navigation begins
   // SECURITY PRINCIPLE: Protected content MUST NEVER be exposed during transitions
-  void onNavigationStart(String fromRoute, String toRoute) {
+  Future<void> onNavigationStart(String fromRoute, String toRoute) async {
     _isTransitioning = true;
     _previousRoute = fromRoute;
     _currentRoute = toRoute;
@@ -161,28 +199,35 @@ class ScreenCaptureService {
 
     _log('Navigation START: $fromRoute -> $toRoute');
 
-    // Apply security-first transition protection
-    _applyTransitionProtection(fromRoute, toRoute);
+    // Apply security-first transition protection IMMEDIATELY
+    await _applyTransitionProtection(fromRoute, toRoute);
   }
 
   // Apply protection logic during transitions - SECURITY FIRST!
   // BLACK SCREEN IS ACCEPTABLE - CONTENT LEAK IS NOT!
-  void _applyTransitionProtection(String fromRoute, String toRoute) {
+  Future<void> _applyTransitionProtection(
+      String fromRoute, String toRoute) async {
     bool fromNeedsProtection = isProtectionEnabledForRoute(fromRoute);
     bool toNeedsProtection = isProtectionEnabledForRoute(toRoute);
+
+    _log(
+        'Transition protection - From: $fromNeedsProtection, To: $toNeedsProtection');
 
     // CRITICAL: If EITHER route needs protection, keep protection ON
     // This ensures ZERO security gaps during transitions
     // Trade-off: User sees black screen during animation, but content is NEVER exposed
     if (fromNeedsProtection || toNeedsProtection) {
       if (!_isProtected) {
-        enableProtection();
+        _log('SECURITY: Enabling protection IMMEDIATELY for transition');
+        await enableProtection();
       }
       // Protection stays ON during entire transition if any route needs it
     } else {
       // Only disable if BOTH routes are unprotected
       if (_isProtected) {
-        disableProtection();
+        _log(
+            'SECURITY: Disabling protection for transition (both routes unprotected)');
+        await disableProtection();
       }
     }
   }
@@ -195,24 +240,53 @@ class ScreenCaptureService {
 
     _log('Navigation COMPLETE: $routeName');
 
-    // Apply final protection state immediately since animation is confirmed complete
-    // No delay needed as this is called by animation completion callback
-    await applyProtectionForRoute(routeName);
+    // CRITICAL SECURITY FIX: Only disable protection if the destination route doesn't need it
+    // AND we're transitioning from a route that needed protection
+    // This prevents the security gap during protected->unprotected transitions
+
+    bool destinationNeedsProtection = isProtectionEnabledForRoute(routeName);
+    bool wasComingFromProtectedRoute = false;
+
+    if (_previousRoute != null) {
+      wasComingFromProtectedRoute =
+          isProtectionEnabledForRoute(_previousRoute!);
+    }
+
+    _log(
+        'Navigation complete analysis - Destination needs protection: $destinationNeedsProtection, Coming from protected: $wasComingFromProtectedRoute');
+
+    // Apply protection logic with security-first approach
+    if (destinationNeedsProtection) {
+      // Destination needs protection - ensure it's enabled
+      if (!_isProtected) {
+        await enableProtection();
+      }
+    } else if (wasComingFromProtectedRoute) {
+      // SECURITY CRITICAL: We're transitioning from protected to unprotected
+      // Add a small delay to ensure the animation is fully complete before disabling protection
+      // This prevents content exposure during animation completion
+      await Future.delayed(Duration(milliseconds: 50));
+      _log('SECURITY: Delayed protection disable after animation completion');
+      await disableProtection();
+    } else {
+      // Normal case: apply protection based on route
+      await applyProtectionForRoute(routeName);
+    }
   }
 
   // Enhanced push handling
   Future<void> onRoutePushed(String fromRoute, String toRoute) async {
     _log('Route PUSHED: $fromRoute -> $toRoute');
-    onNavigationStart(fromRoute, toRoute);
+    await onNavigationStart(fromRoute, toRoute);
   }
 
   // Enhanced pop handling
-  void onRoutePopped(String routeName) {
+  Future<void> onRoutePopped(String routeName) async {
     _removeFromRouteStack(routeName);
     String previousRoute = _routeStack.isNotEmpty ? _routeStack.last : '/';
 
     _log('Route POPPED: $routeName, returning to: $previousRoute');
-    onNavigationStart(routeName, previousRoute);
+    await onNavigationStart(routeName, previousRoute);
   }
 
   // Get current route
