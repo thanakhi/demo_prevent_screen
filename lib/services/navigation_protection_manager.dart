@@ -58,8 +58,8 @@ class NavigationProtectionManager {
     // Get current route from screen capture service
     String? currentRoute = _screenCaptureService.getCurrentRoute();
     if (currentRoute != null) {
-      // Use the improved transition logic from ScreenCaptureService
-      _screenCaptureService.onNavigationStart(currentRoute, routeName);
+      // CRITICAL: Await the navigation start to ensure protection is applied BEFORE animation
+      await _screenCaptureService.onNavigationStart(currentRoute, routeName);
     } else {
       // Fallback: enable protection if target route needs it
       if (_screenCaptureService.isProtectionEnabledForRoute(routeName)) {
@@ -91,11 +91,24 @@ class NavigationProtectionManager {
     Widget child,
     String routeName,
   ) {
+    // Get current route to determine protection strategy
+    String? currentRoute = _screenCaptureService.getCurrentRoute();
+    bool fromProtected = currentRoute != null && 
+        _screenCaptureService.isProtectionEnabledForRoute(currentRoute);
+    bool toProtected = _screenCaptureService.isProtectionEnabledForRoute(routeName);
+    
+    // CRITICAL SECURITY: If transitioning from protected to unprotected,
+    // show black screen during transition to prevent content exposure
+    bool needsProtectionShield = fromProtected && !toProtected;
+    
     // Monitor animation status
     animation.addStatusListener((status) {
       switch (status) {
         case AnimationStatus.forward:
-          // Transition starting
+          // Transition starting - ensure protection is active
+          if (needsProtectionShield || fromProtected) {
+            _screenCaptureService.enableProtectionSynchronous();
+          }
           _screenCaptureService.ensureProtectionDuringTransition();
           break;
         case AnimationStatus.completed:
@@ -121,13 +134,51 @@ class NavigationProtectionManager {
     final slideTween = Tween(begin: begin, end: end);
     final curvedAnimation = CurvedAnimation(parent: animation, curve: curve);
 
-    return SlideTransition(
+    Widget transitionChild = SlideTransition(
       position: slideTween.animate(curvedAnimation),
       child: FadeTransition(
         opacity: animation,
         child: child,
       ),
     );
+    
+    // SECURITY SHIELD: If transitioning from protected content to unprotected,
+    // overlay a black screen during the transition to prevent any content exposure
+    if (needsProtectionShield) {
+      return Stack(
+        children: [
+          transitionChild,
+          // Black overlay that fades out as we approach the unprotected destination
+          AnimatedBuilder(
+            animation: animation,
+            builder: (context, child) {
+              // Keep black screen for first 80% of animation, then fade out
+              double opacity = animation.value < 0.8 ? 1.0 : (1.0 - animation.value) * 5;
+              opacity = opacity.clamp(0.0, 1.0);
+              
+              return opacity > 0 ? Container(
+                color: Colors.black.withOpacity(opacity),
+                child: Center(
+                  child: opacity > 0.5 ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.security, color: Colors.white, size: 48),
+                      SizedBox(height: 16),
+                      Text(
+                        'Protected Content Transition',
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    ],
+                  ) : null,
+                ),
+              ) : SizedBox.shrink();
+            },
+          ),
+        ],
+      );
+    }
+    
+    return transitionChild;
   }
 
   // Get currently active transitions

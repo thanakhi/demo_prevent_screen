@@ -147,8 +147,20 @@ class _Page1State extends State<Page1> {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
-                  // Use protected navigation to ensure screen protection during transition
+                onPressed: () async {
+                  // CRITICAL SECURITY FIX: Apply protection IMMEDIATELY before navigation
+                  // This ensures zero gap between user action and protection
+                  final screenService = ScreenCaptureService();
+                  
+                  // Synchronously enable protection before any navigation starts
+                  if (!screenService.isProtected) {
+                    screenService.enableProtectionSynchronous();
+                  }
+                  
+                  // Small delay to ensure protection is fully active
+                  await Future.delayed(Duration(milliseconds: 10));
+                  
+                  // Now navigate with protection already active
                   NavigationProtectionManager.pushWithProtection(
                     context,
                     '/page2',

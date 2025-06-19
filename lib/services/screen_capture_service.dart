@@ -22,7 +22,7 @@ class ScreenCaptureService {
   // Route-specific protection settings
   final Map<String, bool> _routeProtectionSettings = {
     '/': false,
-    '/page1': false,
+    '/page1': true,  // Page1 is protected by default for security testing
     '/page2': false,
     '/page3': false,
     '/settings': false,
