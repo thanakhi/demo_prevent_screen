@@ -157,10 +157,10 @@ class ScreenCaptureService {
   Future<void> ensureProtectionDuringTransition() async {
     if (_isTransitioning && _previousRoute != null && _currentRoute != null) {
       // During transition, protection must be ON if ANY route needs it
-      bool anyRouteNeedsProtection = 
+      bool anyRouteNeedsProtection =
           isProtectionEnabledForRoute(_previousRoute!) ||
-          isProtectionEnabledForRoute(_currentRoute!);
-      
+              isProtectionEnabledForRoute(_currentRoute!);
+
       if (anyRouteNeedsProtection && !_isProtected) {
         await enableProtection();
       }
