@@ -127,8 +127,14 @@ class ScreenCaptureService {
     _currentRoute = routeName;
     _routeStack.add(routeName);
 
-    // Apply appropriate protection for the new route
-    await applyProtectionForRoute(routeName);
+    // CRITICAL: Add extra delay before applying final protection
+    // This ensures animation is 100% complete before changing protection state
+    await Future.delayed(const Duration(milliseconds: 100));
+    
+    // Double-check we're not in another transition before applying final protection
+    if (!_isTransitioning && _currentRoute == routeName) {
+      await applyProtectionForRoute(routeName);
+    }
   }
 
   // Handle route push

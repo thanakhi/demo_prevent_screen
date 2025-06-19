@@ -21,8 +21,9 @@ class ScreenProtectionRouteObserver extends RouteObserver<PageRoute<dynamic>> {
           _screenCaptureService.onNavigationStart(previousRouteName, routeName);
         }
 
-        // Apply protection after a short delay to ensure route is fully loaded
-        Future.delayed(const Duration(milliseconds: 100), () {
+        // Apply protection after a longer delay to ensure animation is FULLY complete
+        // This prevents content exposure during transitions from protected routes
+        Future.delayed(const Duration(milliseconds: 400), () {
           _screenCaptureService.onNavigationComplete(routeName);
         });
       }
@@ -46,8 +47,9 @@ class ScreenProtectionRouteObserver extends RouteObserver<PageRoute<dynamic>> {
         _screenCaptureService.onNavigationStart(
             poppedRouteName, previousRouteName);
 
-        // Apply protection for the route we're returning to
-        Future.delayed(const Duration(milliseconds: 100), () {
+        // Apply protection for the route we're returning to after longer delay
+        // This ensures protection stays active during entire pop animation
+        Future.delayed(const Duration(milliseconds: 400), () {
           _screenCaptureService.onNavigationComplete(previousRouteName);
         });
       }
