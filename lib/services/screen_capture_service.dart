@@ -10,12 +10,12 @@ class ScreenCaptureService {
   // Track current protection status
   bool _isProtected = false;
   bool get isProtected => _isProtected;
-  
+
   // Track navigation transitions
   bool _isTransitioning = false;
   String? _currentRoute;
   String? _previousRoute;
-  
+
   // Navigation stack to track route history
   final List<String> _routeStack = [];
 
@@ -24,6 +24,7 @@ class ScreenCaptureService {
     '/': false,
     '/page1': false,
     '/page2': false,
+    '/page3': false,
   };
 
   // Enable screen capture prevention
@@ -92,9 +93,10 @@ class ScreenCaptureService {
     _isTransitioning = true;
     _previousRoute = fromRoute;
     _currentRoute = toRoute;
-    
+
     // If either route requires protection, enable it during transition
-    if (isProtectionEnabledForRoute(fromRoute) || isProtectionEnabledForRoute(toRoute)) {
+    if (isProtectionEnabledForRoute(fromRoute) ||
+        isProtectionEnabledForRoute(toRoute)) {
       enableProtection();
     }
   }
@@ -104,7 +106,7 @@ class ScreenCaptureService {
     _isTransitioning = false;
     _currentRoute = routeName;
     _routeStack.add(routeName);
-    
+
     // Apply appropriate protection for the new route
     await applyProtectionForRoute(routeName);
   }
@@ -120,7 +122,7 @@ class ScreenCaptureService {
     if (_routeStack.isNotEmpty) {
       _routeStack.removeLast();
     }
-    
+
     String previousRoute = _routeStack.isNotEmpty ? _routeStack.last : '/';
     onNavigationStart(routeName, previousRoute);
   }
@@ -136,13 +138,15 @@ class ScreenCaptureService {
     if (_isTransitioning) {
       // During transition, apply protection if either route needs it
       bool needsProtection = false;
-      if (_currentRoute != null && isProtectionEnabledForRoute(_currentRoute!)) {
+      if (_currentRoute != null &&
+          isProtectionEnabledForRoute(_currentRoute!)) {
         needsProtection = true;
       }
-      if (_previousRoute != null && isProtectionEnabledForRoute(_previousRoute!)) {
+      if (_previousRoute != null &&
+          isProtectionEnabledForRoute(_previousRoute!)) {
         needsProtection = true;
       }
-      
+
       if (needsProtection && !_isProtected) {
         await enableProtection();
       }

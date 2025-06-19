@@ -5,6 +5,7 @@ import 'services/navigation_protection_manager.dart';
 import 'widgets/screen_protector_wrapper.dart';
 import 'pages/page1.dart';
 import 'pages/page2.dart';
+import 'pages/page3.dart';
 import 'pages/settings_page.dart';
 
 void main() {
@@ -15,7 +16,8 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   // Create route observer instance
-  static final ScreenProtectionRouteObserver routeObserver = ScreenProtectionRouteObserver();
+  static final ScreenProtectionRouteObserver routeObserver =
+      ScreenProtectionRouteObserver();
 
   // This widget is the root of your application.
   @override
@@ -32,6 +34,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const MyHomePage(title: 'Screen Capture Demo'),
         '/page1': (context) => const Page1(),
         '/page2': (context) => const Page2(),
+        '/page3': (context) => const Page3(),
         '/settings': (context) => const SettingsPage(),
       },
     );

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../services/screen_capture_service.dart';
 
 class NavigationProtectionManager {
-  static final NavigationProtectionManager _instance = NavigationProtectionManager._internal();
+  static final NavigationProtectionManager _instance =
+      NavigationProtectionManager._internal();
   factory NavigationProtectionManager() => _instance;
   NavigationProtectionManager._internal();
 
@@ -17,15 +18,14 @@ class NavigationProtectionManager {
   ) async {
     final manager = NavigationProtectionManager();
     await manager._prepareForNavigation(routeName);
-    
+
     final route = PageRouteBuilder<T>(
       settings: RouteSettings(name: routeName),
       pageBuilder: (context, animation, secondaryAnimation) => page,
       transitionDuration: const Duration(milliseconds: 300),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         return manager._buildProtectedTransition(
-          context, animation, secondaryAnimation, child, routeName
-        );
+            context, animation, secondaryAnimation, child, routeName);
       },
     );
 
@@ -44,20 +44,21 @@ class NavigationProtectionManager {
   ]) {
     final manager = NavigationProtectionManager();
     final currentRoute = ModalRoute.of(context)?.settings.name;
-    
+
     if (currentRoute != null) {
       manager._prepareForPop(currentRoute);
     }
-    
+
     Navigator.of(context).pop(result);
   }
 
   Future<void> _prepareForNavigation(String routeName) async {
     _activeTransitions.add(routeName);
-    
+
     // If the target route or any currently active route needs protection, enable it
-    bool needsProtection = _screenCaptureService.isProtectionEnabledForRoute(routeName);
-    
+    bool needsProtection =
+        _screenCaptureService.isProtectionEnabledForRoute(routeName);
+
     // Check if any active transitions require protection
     for (String activeRoute in _activeTransitions) {
       if (_screenCaptureService.isProtectionEnabledForRoute(activeRoute)) {
@@ -65,7 +66,7 @@ class NavigationProtectionManager {
         break;
       }
     }
-    
+
     if (needsProtection) {
       await _screenCaptureService.enableProtection();
     }
@@ -73,14 +74,14 @@ class NavigationProtectionManager {
 
   Future<void> _completeNavigation(String routeName) async {
     _activeTransitions.remove(routeName);
-    
+
     // Apply protection for the final route
     await _screenCaptureService.applyProtectionForRoute(routeName);
   }
 
   void _prepareForPop(String routeName) {
     _activeTransitions.add('pop_$routeName');
-    
+
     // Ensure protection during pop if needed
     if (_screenCaptureService.isProtectionEnabledForRoute(routeName)) {
       _screenCaptureService.enableProtection();

@@ -15,7 +15,7 @@ class ScreenProtectorWrapper extends StatefulWidget {
   State<ScreenProtectorWrapper> createState() => _ScreenProtectorWrapperState();
 }
 
-class _ScreenProtectorWrapperState extends State<ScreenProtectorWrapper> 
+class _ScreenProtectorWrapperState extends State<ScreenProtectorWrapper>
     with RouteAware, TickerProviderStateMixin {
   final ScreenCaptureService _screenCaptureService = ScreenCaptureService();
   late AnimationController _animationController;
@@ -24,13 +24,13 @@ class _ScreenProtectorWrapperState extends State<ScreenProtectorWrapper>
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize animation controller to track transition states
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
+
     _animation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -38,13 +38,13 @@ class _ScreenProtectorWrapperState extends State<ScreenProtectorWrapper>
       parent: _animationController,
       curve: Curves.easeInOut,
     ));
-    
+
     // Listen to animation status changes
     _animationController.addStatusListener(_onAnimationStatusChanged);
-    
+
     // Apply initial protection
     _applyProtection();
-    
+
     // Start animation
     _animationController.forward();
   }

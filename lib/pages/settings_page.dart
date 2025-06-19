@@ -233,6 +233,8 @@ class _SettingsPageState extends State<SettingsPage> {
         return 'Secure Page 1';
       case '/page2':
         return 'Secure Page 2';
+      case '/page3':
+        return 'Advanced Page 3';
       default:
         return routeName;
     }
