@@ -12,6 +12,16 @@ class ScreenProtectionRouteObserver extends RouteObserver<PageRoute<dynamic>> {
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPush(route, previousRoute);
 
+    // Check if the route's animation is already completed (i.e., the route is fully visible)
+    if (route is ModalRoute && route.animation != null) {
+      if (route.animation!.status.isAnimating || route.animation!.status.isDismissed) {
+      // The animation is already completed, so call onNavigationComplete immediately
+      String? routeName = route.settings.name;
+      if (routeName != null) {
+        _screenCaptureService.onNavigationComplete(routeName);
+      }
+      }
+    }
     if (route is PageRoute) {
       String? routeName = route.settings.name;
       String? previousRouteName = previousRoute?.settings.name;

@@ -93,14 +93,15 @@ class NavigationProtectionManager {
   ) {
     // Get current route to determine protection strategy
     String? currentRoute = _screenCaptureService.getCurrentRoute();
-    bool fromProtected = currentRoute != null && 
+    bool fromProtected = currentRoute != null &&
         _screenCaptureService.isProtectionEnabledForRoute(currentRoute);
-    bool toProtected = _screenCaptureService.isProtectionEnabledForRoute(routeName);
-    
+    bool toProtected =
+        _screenCaptureService.isProtectionEnabledForRoute(routeName);
+
     // CRITICAL SECURITY: If transitioning from protected to unprotected,
     // show black screen during transition to prevent content exposure
     bool needsProtectionShield = fromProtected && !toProtected;
-    
+
     // Monitor animation status
     animation.addStatusListener((status) {
       switch (status) {
@@ -141,7 +142,7 @@ class NavigationProtectionManager {
         child: child,
       ),
     );
-    
+
     // SECURITY SHIELD: If transitioning from protected content to unprotected,
     // overlay a black screen during the transition to prevent any content exposure
     if (needsProtectionShield) {
@@ -153,31 +154,38 @@ class NavigationProtectionManager {
             animation: animation,
             builder: (context, child) {
               // Keep black screen for first 80% of animation, then fade out
-              double opacity = animation.value < 0.8 ? 1.0 : (1.0 - animation.value) * 5;
+              double opacity =
+                  animation.value < 0.8 ? 1.0 : (1.0 - animation.value) * 5;
               opacity = opacity.clamp(0.0, 1.0);
-              
-              return opacity > 0 ? Container(
-                color: Colors.black.withOpacity(opacity),
-                child: Center(
-                  child: opacity > 0.5 ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.security, color: Colors.white, size: 48),
-                      SizedBox(height: 16),
-                      Text(
-                        'Protected Content Transition',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
+
+              return opacity > 0
+                  ? Container(
+                      color: Colors.black.withOpacity(opacity),
+                      child: Center(
+                        child: opacity > 0.5
+                            ? Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.security,
+                                      color: Colors.white, size: 48),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'Protected Content Transition',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16),
+                                  ),
+                                ],
+                              )
+                            : null,
                       ),
-                    ],
-                  ) : null,
-                ),
-              ) : SizedBox.shrink();
+                    )
+                  : SizedBox.shrink();
             },
           ),
         ],
       );
     }
-    
+
     return transitionChild;
   }
 
